@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Home!</title>
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+  </head>
+  <body>
+    All Kingdoms:
+    <ul>
+      {{#each kingdoms}}
+      <li>
+        <div>
+          Name: {{this.name}}, legs: {{this.legs}}. <a href='/detail?item={{this.name}}'>Details.</a>
+        </div>
+      </li>
+      {{/each}}
+    </ul>
+  </body>
+</html>

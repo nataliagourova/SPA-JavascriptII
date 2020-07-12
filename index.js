@@ -1,45 +1,47 @@
-var http = require('http'), fs = require('fs');
+const express = require('express');
+const handlebars = require('express-handlebars')
+const app = express();
 const data = require('./data.js');
 
-function serveStatic(res, path, contentType, responseCode){
-    if(!responseCode) responseCode = 200;
-    console.log('index.js');
-    fs.readFile('index.js', (err, data) => {
-        if (err) {
-        res.writeHead(500, {'Content-Type': 'text/plain'});
-        res.end('Internal Server Error');
-        }
-        else{
-          res.writeHead(responseCode, {'Content-Type': contentType});
-          res.end(data.toString());        
-        }
+app.set('view engine', 'handlebars');
+app.engine('.handlebars', handlebars( {
+  layoutsDir: __dirname + '/views',
+  defaultLayout: false
+}));
 
-    });
-}
+app.get('/', (req, res) => {
+  //get all data on kin gdoms
+  res.render('home', { kingdoms : data.getAll()});
+});
 
-http.createServer(function(req,res){
-  console.log(req.url)
-  var path = req.url.toLowerCase();
-  switch(path) {
-    case '/':
-      res.writeHead(200, {'Content-Type': 'text/plain'});
-      res.end(`Home page:\n There are ${numberOfObjects} objects as follows: \n${allKingdoms}`);
-      break;
-    case '/about':
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(`About:\n ${aboutMe}`);
-    break;
-    default:
-      res.writeHead(404, {'Content-Type': 'text/plain'});
-      res.end('404: Page not found.');
-      break;
-    }
-}).listen(process.env.PORT || 3000);
-console.log('after createServer')
+app.get('/detail', (req, res) => {
+  let requestedKingdomName = req.query.item;
+  let requestedKingdom = data
+    .getAll()
+    .find(kingdom => kingdom.name.toLowerCase() == requestedKingdomName.toLowerCase());
+  if (requestedKingdom) {
+    res.render('detail.handlebars', { kingdom : requestedKingdom });
+    return;
+  }
+  
+  res.writeHead(404, {'Content-Type': 'text/plain'});
+  res.end(`Kingdom '${req.query.item}' not found.`);
+});
 
-//get all data on kingdoms
-let allKingdoms = JSON.stringify(data.getAll());
-let numberOfObjects = data.numberOfObjects();
-console.log(allKingdoms);
-//about me block
-let aboutMe = 'I am a NSC student looking to improve Node.js with Express skills';
+
+app.get('/about', (req, res) => {
+  //about me block
+  let aboutMe = 'I am a NSC student looking to improve Node.js with Express skills';
+
+  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.end(`About:\n ${aboutMe}`);
+});
+
+app.get('*', function(req, res){
+  res.writeHead(404, {'Content-Type': 'text/plain'});
+  res.end('404: Page not found.');
+});
+
+app.listen(3000, () =>
+  console.log('Example app listening on port 3000!'),
+);
