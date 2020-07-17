@@ -1,7 +1,7 @@
 {
-  "name": "assignment1",
+  "name": "assignment2",
   "version": "1.0.0",
-  "description": "week 1 homework",
+  "description": "week 2 homework",
   "main": "index.js",
   "directories": {
     "lib": "lib",
@@ -14,10 +14,14 @@
     "express": "4.17.1",
     "express-handlebars": "5.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.0.1"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
+    "lint": "eslint **/*.js",
+    "test": "mocha test/**",
     "eslint": "^6.8.0"
   },
   "repository": {
