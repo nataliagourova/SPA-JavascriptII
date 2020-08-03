@@ -1,2 +1,4 @@
 node_modules/
 lib/credentials.js
+routes/kingdom.js 
+.DS_Store
