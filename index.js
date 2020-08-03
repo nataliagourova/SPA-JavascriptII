@@ -73,7 +73,10 @@ app.put('/api/kingdoms/:name', (req, res) => {
     res.status(400).send({ error : 'Missing kingdom name' });
     return;
   }
-  Kingdom.findOneAndUpdate({name: req.params.name}, req.body, { new : true })
+  Kingdom.findOneAndUpdate(
+      {name: req.params.name},
+      req.body, 
+      { returnOriginal: false, upsert: true, useFindAndModify : false})
     .then(updatedDoc => res.json(updatedDoc) )
     .catch(err => res.status(500).send( { error : 'Error updating the kingdom.' }));
 })
