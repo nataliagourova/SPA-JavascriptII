@@ -32,18 +32,30 @@ app.use(bodyParser.json());
     //     next();
     // })
 
+//Home page: using MOngoDB Routes Integration
 app.get ('/', (req, res) => {
   kingdom
     .getAll()
     .then((kingdoms) => {
-        res.render ('home', {kingdoms: kingdoms });
+      res.render('react_home', {kingdoms: JSON.stringify(kingdoms)});
+    })
+    .catch((err) => {
+    return next(err);
+  });
+});
+
+app.get ('/react_home', (req, res) => {
+  kingdom
+    .getAll()
+    .then((kingdoms) => {
+        res.render('react_home', {kingdoms: JSON.stringify(kingdoms)});
       })
     .catch((err) => {
     return next(err);
   });
 });
 
-//GET all
+//GET all api route
 app.get('/api/kingdoms', (req, res, next) => {
   return kingdom.find({}).lean()
     .then((kingdoms)=> {
