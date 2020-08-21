@@ -17,10 +17,15 @@
           super(props);
           this.state = { kingdom : props.kingdom };
           this.showAllKingdoms = this.showAllKingdoms.bind(this);
+          this.showEditForm = this.showEditForm.bind(this);
         }
 
         showAllKingdoms(event) {
           ReactDOM.render(<KingdomsList />, document.getElementById('root'));
+        }
+
+        showEditForm(event) {
+          ReactDOM.render(<KingdomDetailsForm kingdom={this.state.kingdom} />, document.getElementById('root'));
         }
 
         render() {
@@ -64,7 +69,85 @@
                         </tr>
                     </tbody>
                 </table>
+                <input type="button" value="Edit" onClick={this.showEditForm}/>
               </div>);
+        }
+      }
+
+      class KingdomDetailsForm extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = { 
+            originalKingdom : props.kingdom,
+            editedKingdom : JSON.parse(JSON.stringify(props.kingdom))
+          };
+          this.saveChanges = this.saveChanges.bind(this);
+          this.onChange = this.onChange.bind(this);
+          this.reset = this.reset.bind(this);
+          this.clear = this.clear.bind(this);
+          this.showAllKingdoms = this.showAllKingdoms.bind(this);
+        }
+
+        showAllKingdoms(event) {
+          ReactDOM.render(<KingdomsList />, document.getElementById('root'));
+        }
+
+        onChange(event) {
+          const fieldName = event.target.name;
+          const fieldValue = fieldName === 'mobile' ? event.target.checked.toString() : event.target.value;
+          console.log(fieldName + ":" + fieldValue);
+
+          this.state.editedKingdom[fieldName] = fieldValue;
+          this.setState(this.state);
+        }
+
+        saveChanges(event) {
+          event.preventDefault();
+          var editedKingdom = this.state.editedKingdom;
+          delete editedKingdom["_id"];
+
+          fetch("/api/kingdoms/" + editedKingdom.name, {
+            method: "PUT",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(editedKingdom)
+          })
+          .then(res => res.json())
+          .then((data) => {
+            console.log('Saved: ' + JSON.stringify(data));
+            window.location.reload(true);
+          })
+          .catch((err) => {
+            console.log('Error: ' + JSON.stringify(err));
+            window.location.reload(true);
+          });
+        }
+
+        reset() {
+          this.setState({
+            originalKingdom : this.state.originalKingdom,
+            editedKingdom : JSON.parse(JSON.stringify(this.state.originalKingdom))
+          });
+        }
+
+        clear() {
+          this.setState({
+            originalKingdom : this.state.originalKingdom,
+            editedKingdom : {}
+          });
+        }
+
+        render() {
+          const editedKingdom = this.state.editedKingdom;
+          return (<div>
+                    <a href='#' onClick={this.showAllKingdoms}>Back</a>
+                    <form onSubmit={this.saveChanges}>
+                      Name: <input type="text" name="name" value={editedKingdom.name || ""} disabled /><p />
+                      Legs: <input type="text" name="legs" value={editedKingdom.legs || ""} onChange={this.onChange}/><p />
+                      Fluid Temperature: <input type="text" name="fluidtemp" value={editedKingdom.fluidtemp || ""}  onChange={this.onChange}/><p />
+                      Is Mobile? <input type="checkbox" name="mobile" checked={ JSON.parse((editedKingdom.mobile || "false").toLowerCase())} onChange={this.onChange}/><p />
+                      <span><input type="button" value="Reset" onClick={this.reset}/><input type="button" value="Clear" onClick={this.clear}/><input type="submit" value="Save" /> </span><p />
+                    </form>
+                </div>);
         }
       }
 
